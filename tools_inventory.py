@@ -102,3 +102,26 @@ tool_functions = [
 ]
 
 tool_definitions = [get_tool_description(func) for func in tool_functions]
+
+
+# REGISTRY: this connect the name in the tool_defintions json to the actual function
+tool_map = {
+    "get_current_time": get_current_time,
+    "add": add,
+    "subtract": subtract,
+    "multiply": multiply,
+    "divide": divide,
+}
+
+# 2. THE DISPATCHER (The Logic)
+def execute_tool_call(tool_call):
+    name = tool_call.function.name
+    args = tool_call.function.arguments  # This is already a dictionary from Ollama
+
+    # Get the actual function from our map
+    function_to_call = tool_map.get(name)
+
+    if function_to_call:
+        # Pass the arguments into the function (**kwargs unpacking)
+        return function_to_call(**args)
+    return "Error: Tool not found"
