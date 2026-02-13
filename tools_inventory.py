@@ -2,7 +2,29 @@
 from datetime import datetime
 from typing import get_type_hints
 import inspect
-import json
+import os
+import psutil
+import platform
+
+# Third-Party Imports
+from pydantic import create_model, ValidationError
+
+
+def get_system_stats() -> dict:
+    """Returns the current CPU and Memory usage of the machine."""
+    return {
+        "cpu_usage_percent": psutil.cpu_percent(),
+        "memory_usage_percent": psutil.virtual_memory().percent,
+        "os": platform.system()
+    }
+
+
+def list_directory_contents(path: str = ".") -> list:
+    """Lists the files and folders in a given directory path."""
+    try:
+        return os.listdir(path)
+    except Exception as e:
+        return [f"Error: {str(e)}"]
 
 
 def get_current_time() -> str:
@@ -94,11 +116,13 @@ def get_tool_description(func):
     }
 
 tool_functions = [
+    get_system_stats,
+    list_directory_contents,
     get_current_time,
     add,
     subtract,
     multiply,
-    divide
+    divide,
 ]
 
 tool_definitions = [get_tool_description(func) for func in tool_functions]
@@ -106,6 +130,8 @@ tool_definitions = [get_tool_description(func) for func in tool_functions]
 
 # REGISTRY: this connect the name in the tool_defintions json to the actual function
 tool_map = {
+    "get_system_stats": get_system_stats,
+    "list_directory_contents": list_directory_contents,
     "get_current_time": get_current_time,
     "add": add,
     "subtract": subtract,
@@ -122,6 +148,27 @@ def execute_tool_call(tool_call):
     function_to_call = tool_map.get(name)
 
     if function_to_call:
-        # Pass the arguments into the function (**kwargs unpacking)
-        return function_to_call(**args)
+        # Auto-cast string inputs to proper Python types using Pydantic
+        type_hints = get_type_hints(function_to_call)
+        sig = inspect.signature(function_to_call)
+
+        # Build field definitions for Pydantic model
+        field_definitions = {}
+        for param_name, param in sig.parameters.items():
+            param_type = type_hints.get(param_name, str)
+            # Use ... for required fields, default value otherwise
+            default = ... if param.default == inspect.Parameter.empty else param.default
+            field_definitions[param_name] = (param_type, default)
+
+        # Dynamically create a Pydantic model for validation
+        ValidationModel = create_model(f'{name}_args', **field_definitions)
+
+        try:
+            # Validate and coerce the arguments
+            validated = ValidationModel(**args)
+            # Pass the validated arguments into the function
+            return function_to_call(**validated.model_dump())
+        except ValidationError as e:
+            return f"Error: Invalid arguments for {name}: {e}"
+
     return "Error: Tool not found"
