@@ -1,4 +1,9 @@
 # Local Imports
+import os
+
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables from .env file
+
 from llm import LocalLLm
 from tools_inventory import execute_tool_call, tool_definitions
 
@@ -33,7 +38,11 @@ from tools_inventory import execute_tool_call, tool_definitions
 # TODO: MULTI-MODAL LOGGING - Create a visual dashboard (Streamlit or Flask)
 # that displays the 'messages' history in real-time as the agent 'thinks'.
 
-llm = LocalLLm("llama3.2:3b")
+# Env Vars
+LOCAL_MODEL_NAME = os.getenv("LOCAL_MODEL_NAME", "llama3.2:3b")  # Default to GPT-3.5 if not set
+
+
+llm = LocalLLm(LOCAL_MODEL_NAME)
 
 messages = [
     {
@@ -44,12 +53,13 @@ messages = [
             "2. For casual conversation, greetings, or feedback (like 'cool', 'ok', 'thanks'), "
             "do NOT call any tools. Just respond with text."
         )
-    },
-    {
-        "role": "user",
-        "content": "How are doing?"
     }
 ]
+
+user_input = input("User: ").strip()
+if user_input.lower() in ["exit", "quit"]:
+    exit()
+messages.append({"role": "user", "content": user_input})
 
 while True:
     # Step A: Call the LLM with your tool descriptions
