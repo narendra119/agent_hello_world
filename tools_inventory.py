@@ -143,6 +143,7 @@ tool_map = {
 def execute_tool_call(tool_call):
     name = tool_call.function.name
     args = tool_call.function.arguments  # This is already a dictionary from Ollama
+    # print("Executing tool call:", name, "with args:", args)
 
     # Get the actual function from our map
     function_to_call = tool_map.get(name)

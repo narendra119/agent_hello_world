@@ -17,11 +17,11 @@ from tools_inventory import execute_tool_call, tool_definitions
 # TODO: LONG-TERM MEMORY - Integrate ChromaDB or Qdrant.
 # Store old conversations as embeddings to provide the agent with "Semantic Recall."
 
+# TODO: STREAMING UI - Refactor 'llm.call' to handle streaming tokens - DONE
+# so the Assistant's response feels 'alive' in the terminal or a future web UI.
+
 # TODO: MCP (Model Context Protocol) - Abstract the tool-calling logic to
 # connect with external MCP servers for weather, browser access, or file editing.
-
-# TODO: STREAMING UI - Refactor 'llm.call' to handle streaming tokens
-# so the Assistant's response feels 'alive' in the terminal or a future web UI.
 
 # TODO: COST/LATENCY TRACKING - Log the time taken for each LLM call
 # and the number of iterations in the 'while' loop to monitor efficiency.
@@ -83,7 +83,6 @@ while True:
         continue
 
     messages.append(response.message.model_dump())
-    print(f"Assistant: {response.message.content}")
 
     # Take user input for the next turn and add it to the conversation history
     user_input = input("User: ").strip()
