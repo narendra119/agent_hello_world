@@ -9,6 +9,8 @@ import platform
 # Third-Party Imports
 from pydantic import create_model, ValidationError
 
+# Local Imports
+from vector_db import retrieve
 
 def get_system_stats() -> dict:
     """Returns the current CPU and Memory usage of the machine."""
@@ -54,6 +56,25 @@ def divide(a: int, b: int) -> float:
 
     return a / b
 
+
+def search_cat_facts(query: str, limit: int = 3) -> str:
+    """
+    Searches the Qdrant cat-facts collection for relevant facts based on the provided query.
+
+    Args:
+        query (str): The query string to search for.
+        limit (int, optional): The maximum number of results to return. Defaults to 3.
+
+    Returns:
+        str: A string containing the retrieved knowledge, including the similarity score and the chunk of text for each result.
+    """
+    retrieved_knowledge = retrieve(query, top_n=limit)
+    print('Retrieved knowledge:')
+    print(type(retrieved_knowledge))
+    for chunk, similarity in retrieved_knowledge:
+        print(f' - (similarity: {similarity:.2f}) {chunk}')
+
+    return retrieved_knowledge
 
 def get_tool_description(func):
     """
