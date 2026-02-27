@@ -12,7 +12,7 @@ from tools_inventory import execute_tool_call, tool_definitions
 # Save 'messages' to a file after every 'Assistant' turn so you don't lose history on crash.
 
 # TODO: DEFENSIVE DISPATCHER - Wrap 'execute_tool_call' in a try-except block.
-# If a tool fails, pass the error string back to the LLM so it can try to self-correct.
+# If a tool fails, pass the error string back to the LLM so it can try to self-correct. - DONE
 
 # TODO: LONG-TERM MEMORY - Integrate ChromaDB or Qdrant.
 # Store old conversations as embeddings to provide the agent with "Semantic Recall."
@@ -69,7 +69,10 @@ while True:
     if response.message.tool_calls:
         for tool_call in response.message.tool_calls:
             # Step C: Execute the Python code
-            result = execute_tool_call(tool_call)
+            try:
+                result = execute_tool_call(tool_call)
+            except Exception as e:
+                result = f"Tool error: {e}"
 
             # Step D: Update the conversation history
             messages.append(response.message) # Add the AI's intent
