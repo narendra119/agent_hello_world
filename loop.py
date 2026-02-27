@@ -6,10 +6,11 @@ load_dotenv()  # Load environment variables from .env file
 
 from llm import LocalLLm
 from tools_inventory import execute_tool_call, tool_definitions
+from persistence import save_messages, load_messages
 
 
 # TODO: PERSISTENCE - Implement a JSON-based conversation logger.
-# Save 'messages' to a file after every 'Assistant' turn so you don't lose history on crash.
+# Save 'messages' to a file after every 'Assistant' turn so you don't lose history on crash. - DONE
 
 # TODO: DEFENSIVE DISPATCHER - Wrap 'execute_tool_call' in a try-except block.
 # If a tool fails, pass the error string back to the LLM so it can try to self-correct. - DONE
@@ -44,17 +45,22 @@ LOCAL_MODEL_NAME = os.getenv("LOCAL_MODEL_NAME", "llama3.2:3b")  # Default to GP
 
 llm = LocalLLm(LOCAL_MODEL_NAME)
 
-messages = [
-    {
-        "role": "system",
-        "content": (
-            "You are a helpful assistant with access to tools. "
-            "1. ONLY use a tool if the user's request explicitly requires it. "
-            "2. For casual conversation, greetings, or feedback (like 'cool', 'ok', 'thanks'), "
-            "do NOT call any tools. Just respond with text."
-        )
-    }
-]
+system_message = {
+    "role": "system",
+    "content": (
+        "You are a helpful assistant with access to tools. "
+        "1. ONLY use a tool if the user's request explicitly requires it. "
+        "2. For casual conversation, greetings, or feedback (like 'cool', 'ok', 'thanks'), "
+        "do NOT call any tools. Just respond with text."
+    )
+}
+
+saved = load_messages()
+if saved:
+    print(f"Resuming previous conversation ({len(saved)} messages loaded).")
+    messages = saved
+else:
+    messages = [system_message]
 
 user_input = input("User: ").strip()
 if user_input.lower() in ["exit", "quit"]:
@@ -75,7 +81,7 @@ while True:
                 result = f"Tool error: {e}"
 
             # Step D: Update the conversation history
-            messages.append(response.message) # Add the AI's intent
+            messages.append(response.message.model_dump()) # Add the AI's intent
             messages.append({
                 "role": "tool",
                 "content": str(result),
@@ -86,6 +92,7 @@ while True:
         continue
 
     messages.append(response.message.model_dump())
+    save_messages(messages)
 
     # Take user input for the next turn and add it to the conversation history
     user_input = input("User: ").strip()
