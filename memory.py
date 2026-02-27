@@ -42,11 +42,11 @@ def recall(user_text: str, top_k: int = 3) -> list:
     if _client.count(collection_name=COLLECTION_NAME).count == 0:
         return []
     vector = _embed(user_text)
-    results = _client.search(
+    results = _client.query_points(
         collection_name=COLLECTION_NAME,
-        query_vector=vector,
+        query=vector,
         limit=top_k,
-    )
+    ).points
     return [
         f"user: {r.payload['user']}\nassistant: {r.payload['assistant']}"
         for r in results
