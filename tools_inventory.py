@@ -21,14 +21,6 @@ def get_system_stats() -> dict:
     }
 
 
-def list_directory_contents(path: str = ".") -> list:
-    """Lists the files and folders in a given directory path."""
-    try:
-        return os.listdir(path)
-    except Exception as e:
-        return [f"Error: {str(e)}"]
-
-
 def get_current_time() -> str:
     """A simple function to get the current time"""
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -136,7 +128,6 @@ def get_tool_description(func):
 
 tool_functions = [
     get_system_stats,
-    list_directory_contents,
     get_current_time,
     add,
     subtract,
@@ -151,7 +142,6 @@ tool_definitions = [get_tool_description(func) for func in tool_functions]
 # REGISTRY: this connect the name in the tool_defintions json to the actual function
 tool_map = {
     "get_system_stats": get_system_stats,
-    "list_directory_contents": list_directory_contents,
     "get_current_time": get_current_time,
     "add": add,
     "subtract": subtract,
