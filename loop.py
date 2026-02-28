@@ -2,13 +2,17 @@
 import time
 
 from llm import LocalLLm
-from tools_inventory import execute_tool_call, tool_definitions
+from tools_inventory import execute_tool_call, tool_definitions as local_tool_definitions
 from persistence import save_messages, load_messages
 from memory import store_turn, recall
+from mcp_client import MCPClient
 from config import LOCAL_MODEL_NAME
 
-
 llm = LocalLLm(LOCAL_MODEL_NAME)
+
+mcp = MCPClient(command="uvx", args=["mcp-server-fetch"])
+tool_definitions = local_tool_definitions + mcp.get_tool_definitions()
+mcp_tool_names = mcp.get_tool_names()
 
 BASE_SYSTEM_CONTENT = (
     "You are a helpful assistant with access to tools. "
@@ -53,7 +57,11 @@ while True:
         for tool_call in response.message.tool_calls:
             # Step C: Execute the Python code
             try:
-                result = execute_tool_call(tool_call)
+                name = tool_call.function.name
+                if name in mcp_tool_names:
+                    result = mcp.call_tool(name, tool_call.function.arguments)
+                else:
+                    result = execute_tool_call(tool_call)
             except Exception as e:
                 result = f"Tool error: {e}"
 

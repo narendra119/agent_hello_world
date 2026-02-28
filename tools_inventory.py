@@ -69,12 +69,10 @@ def search_cat_facts(query: str, limit: int = 3) -> str:
         str: A string containing the retrieved knowledge, including the similarity score and the chunk of text for each result.
     """
     retrieved_knowledge = retrieve(query, top_n=limit)
-    print('Retrieved knowledge:')
-    print(type(retrieved_knowledge))
-    for chunk, similarity in retrieved_knowledge:
-        print(f' - (similarity: {similarity:.2f}) {chunk}')
-
-    return retrieved_knowledge
+    return "\n".join(
+        f"(similarity: {similarity:.2f}) {chunk}"
+        for chunk, similarity in retrieved_knowledge
+    )
 
 def get_tool_description(func):
     """
@@ -144,6 +142,7 @@ tool_functions = [
     subtract,
     multiply,
     divide,
+    search_cat_facts,
 ]
 
 tool_definitions = [get_tool_description(func) for func in tool_functions]
@@ -158,6 +157,7 @@ tool_map = {
     "subtract": subtract,
     "multiply": multiply,
     "divide": divide,
+    "search_cat_facts": search_cat_facts,
 }
 
 # 2. THE DISPATCHER (The Logic)

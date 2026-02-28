@@ -20,7 +20,7 @@ so the Assistant's response feels 'alive' in the terminal or a future web UI.
 Log the time taken for each LLM call
 and the number of iterations in the 'while' loop to monitor efficiency.
 
-## MCP (Model Context Protocol)
+## MCP (Model Context Protocol) - DONE
 Abstract the tool-calling logic to
 connect with external MCP servers for weather, browser access, or file editing.
 
@@ -32,7 +32,7 @@ Ensure the agent cannot call 'write_audit_log' unless a specific environment var
 Refactor 'execute_tool_call' to be 'async def'.
 This allows the agent to fetch external API data (like weather or logs) without blocking the loop.
 
-## SEMANTIC SEARCH
+## SEMANTIC SEARCH - DONE
 Replace 'search_coding_standards' with a ChromaDB lookup.
 Convert the user's query into a vector and find the most relevant document.
 
