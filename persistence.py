@@ -1,7 +1,7 @@
 import json
 import os
 
-HISTORY_FILE = "conversation_history.json"
+from config import HISTORY_FILE
 
 
 def save_messages(messages):

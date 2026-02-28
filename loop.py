@@ -1,18 +1,11 @@
 # Local Imports
-import os
 import time
-
-from dotenv import load_dotenv
-load_dotenv()  # Load environment variables from .env file
 
 from llm import LocalLLm
 from tools_inventory import execute_tool_call, tool_definitions
 from persistence import save_messages, load_messages
 from memory import store_turn, recall
-
-
-# Env Vars
-LOCAL_MODEL_NAME = os.getenv("LOCAL_MODEL_NAME", "llama3.2:3b")  # Default to GPT-3.5 if not set
+from config import LOCAL_MODEL_NAME
 
 
 llm = LocalLLm(LOCAL_MODEL_NAME)

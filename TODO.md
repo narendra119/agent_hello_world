@@ -60,7 +60,7 @@ Support a 'reset' or 'clear' command in the chat to wipe the active session clea
 All output is print() statements mixed with user-facing text.
 Add a proper log file with timestamps and log levels for easier debugging.
 
-## CONFIG FILE
+## CONFIG FILE - DONE
 Model name, top_k, history file path, Qdrant host are scattered across multiple files.
 Centralize all settings into a single config.py or .env file.
 

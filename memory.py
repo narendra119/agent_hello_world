@@ -4,11 +4,18 @@ import ollama
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
 
-COLLECTION_NAME = "agent_memory"
-EMBED_MODEL = "nomic-embed-text"
-VECTOR_SIZE = 768
+from config import (
+    EMBED_MODEL,
+    VECTOR_SIZE,
+    MEMORY_TOP_K,
+    QDRANT_HOST,
+    QDRANT_PORT,
+    QDRANT_COLLECTION,
+)
 
-_client = QdrantClient(host="localhost", port=6333)
+COLLECTION_NAME = QDRANT_COLLECTION
+
+_client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
 
 # Ensure collection exists at import time
 _existing = [c.name for c in _client.get_collections().collections]
@@ -38,7 +45,7 @@ def store_turn(user_text: str, assistant_text: str):
     )
 
 
-def recall(user_text: str, top_k: int = 3) -> list:
+def recall(user_text: str, top_k: int = MEMORY_TOP_K) -> list:
     if _client.count(collection_name=COLLECTION_NAME).count == 0:
         return []
     vector = _embed(user_text)
