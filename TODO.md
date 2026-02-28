@@ -39,3 +39,31 @@ Convert the user's query into a vector and find the most relevant document.
 ## MULTI-MODAL LOGGING
 Create a visual dashboard (Streamlit or Flask)
 that displays the 'messages' history in real-time as the agent 'thinks'.
+
+## CONTEXT WINDOW MANAGEMENT
+The 'messages' list grows unboundedly. Once it exceeds the model's context limit, the agent crashes.
+Trim or summarize old messages from the active window to keep it within safe limits.
+
+## RETRY LOGIC
+If 'llm.call' fails (network blip, model timeout), the agent dies immediately.
+Add exponential backoff with a configurable number of retries around the LLM call.
+
+## TOKEN COUNTING
+Latency is tracked but not token usage per call.
+Without this, there's no early warning before hitting the context limit.
+
+## CONVERSATION RESET
+The only way to start fresh is to manually delete 'conversation_history.json'.
+Support a 'reset' or 'clear' command in the chat to wipe the active session cleanly.
+
+## STRUCTURED LOGGING
+All output is print() statements mixed with user-facing text.
+Add a proper log file with timestamps and log levels for easier debugging.
+
+## CONFIG FILE
+Model name, top_k, history file path, Qdrant host are scattered across multiple files.
+Centralize all settings into a single config.py or .env file.
+
+## HUMAN-IN-THE-LOOP
+Before executing tools that have side effects (writes, deletes), pause and ask for confirmation.
+Pairs naturally with SANDBOXING.
