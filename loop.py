@@ -11,8 +11,9 @@ from config import LOCAL_MODEL_NAME
 llm = LocalLLm(LOCAL_MODEL_NAME)
 
 mcp = MCPClient(command="uvx", args=["mcp-server-fetch"])
-tool_definitions = local_tool_definitions + mcp.get_tool_definitions()
-mcp_tool_names = mcp.get_tool_names()
+mcp_fs = MCPClient(command="npx", args=["-y", "@modelcontextprotocol/server-filesystem", str(__import__("pathlib").Path(__file__).parent)])
+tool_definitions = local_tool_definitions + mcp.get_tool_definitions() + mcp_fs.get_tool_definitions()
+mcp_tool_names = mcp.get_tool_names() | mcp_fs.get_tool_names()
 
 BASE_SYSTEM_CONTENT = (
     "You are a helpful assistant with access to tools. "
@@ -59,7 +60,9 @@ while True:
             # Step C: Execute the Python code
             try:
                 name = tool_call.function.name
-                if name in mcp_tool_names:
+                if name in mcp_fs.get_tool_names():
+                    result = mcp_fs.call_tool(name, tool_call.function.arguments)
+                elif name in mcp.get_tool_names():
                     result = mcp.call_tool(name, tool_call.function.arguments)
                 else:
                     result = execute_tool_call(tool_call)
