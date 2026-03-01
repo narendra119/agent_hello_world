@@ -51,14 +51,16 @@ def divide(a: int, b: int) -> float:
 
 def search_cat_facts(query: str, limit: int = 3) -> str:
     """
-    Searches the Qdrant cat-facts collection for relevant facts based on the provided query.
+    ONLY use this tool when the user explicitly asks about cats.
+    Searches a cat-facts database for cat-related information.
+    Do NOT use for general knowledge, greetings, or any non-cat topics.
 
     Args:
-        query (str): The query string to search for.
+        query (str): A cat-related search query.
         limit (int, optional): The maximum number of results to return. Defaults to 3.
 
     Returns:
-        str: A string containing the retrieved knowledge, including the similarity score and the chunk of text for each result.
+        str: Relevant cat facts with similarity scores.
     """
     retrieved_knowledge = retrieve(query, top_n=limit)
     return "\n".join(
