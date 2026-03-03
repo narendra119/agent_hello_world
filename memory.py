@@ -46,6 +46,8 @@ def store_turn(user_text: str, assistant_text: str):
 
 
 def recall(user_text: str, top_k: int = MEMORY_TOP_K) -> list:
+    if not user_text.strip():
+        return []
     if _client.count(collection_name=COLLECTION_NAME).count == 0:
         return []
     vector = _embed(user_text)
